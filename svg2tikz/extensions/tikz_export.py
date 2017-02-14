@@ -1212,7 +1212,7 @@ class TikZPathExporter(inkex.Effect):
                 current_pos = params[-2:]
                 pass
             elif cmd == 'TXT':
-                s += " node[above right] (%s) {%s}" % (node_id, params)
+                s += " node (%s) {%s}" % (node_id, params)
             # Shapes
             elif cmd == 'rect':
                 s += "(%s,%s) rectangle (%s,%s)" % tparams
