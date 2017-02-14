@@ -855,9 +855,28 @@ class TikZPathExporter(inkex.Effect):
         # http://www.w3.org/TR/SVG/painting.html#MarkerElement
         if self.options.markings == 'ignore':
             return []
-        if state.marker_start:
-            if state.marker_start == 'none' and accumulated_state.marker_start:
-                pass
+
+        marker_options = []
+        if self.options.markings == 'arrows':
+            if state.marker_start:
+                if state.marker_start == 'none' and accumulated_state.marker_start:
+                    pass
+                else:
+                    marker_options += ['<-']
+
+            if state.marker_end:
+                if state.marker_end == 'none' and accumulated_state.marker_end:
+                    pass
+                else:
+                    marker_options += ['->']
+
+            if '->' in marker_options and '<-' in marker_options:
+                marker_options.remove('->')
+                marker_options.remove('<-')
+                marker_options.append('<->')
+
+        return marker_options
+
 
     def convert_svgstate_to_tikz(self, state, accumulated_state=None, node=None):
         """Return a node's SVG styles as a list of TikZ options"""
