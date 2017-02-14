@@ -651,7 +651,9 @@ class TikZPathExporter(inkex.Effect):
         parser = self.OptionParser
         parser.set_defaults(codeoutput='standalone', crop=False, clipboard=False,
                             wrap=True, indent=True, returnstring=False, scale=1,
-                            mode='effect', notext=False, verbose=False, texmode='escape', markings='ignore')
+                            mode='effect', notext=False, verbose=False, texmode='escape', markings='ignore',
+                            ignore_stroke=False, ignore_fill=False
+        )
         parser.add_option('--codeoutput', dest='codeoutput',
                           choices=('standalone', 'codeonly', 'figonly'),
                           help="Amount of boilerplate code (standalone, figonly, codeonly).")
@@ -661,6 +663,12 @@ class TikZPathExporter(inkex.Effect):
         parser.add_option('--markings', dest='markings', default='ignore',
                           choices=('ignore', 'translate', 'arrows'),
                           help="Set markings mode (ignore, translate, arrows). Defaults to 'ignore'")
+        self._add_booloption(parser, '--ignore-stroke',
+                             dest="ignore_stroke",
+                             help="Ignore all stroke properties")
+        self._add_booloption(parser, '--ignore-fill',
+                             dest="ignore_fill",
+                             help="Ignore all fill properties")
         self._add_booloption(parser, '--crop',
                              dest="crop",
                              help="Use the preview package to crop the tikzpicture")
@@ -863,6 +871,7 @@ class TikZPathExporter(inkex.Effect):
             options.append('color=%s' % self.get_color(state.color))
 
         stroke = state.stroke.get('stroke', '')
+            
         if stroke != 'none':
             if stroke:
                 if stroke == 'currentColor':
@@ -875,6 +884,7 @@ class TikZPathExporter(inkex.Effect):
                     options.append('draw')
 
         fill = state.fill.get('fill')
+
         if fill != 'none':
             if fill:
                 if fill == 'currentColor':
@@ -916,7 +926,14 @@ class TikZPathExporter(inkex.Effect):
 
         for svgname, tikzdata in PROPERTIES_MAP.items():
             tikzname, valuetype, data = tikzdata
-            value = state.fill.get(svgname) or state.stroke.get(svgname)
+            value = None
+
+            if not self.options.ignore_fill:
+                value = state.fill.get(svgname)
+
+            if not value and not self.options.ignore_stroke:
+                value = state.stroke.get(svgname)    
+                
             if not value:
                 continue
             if valuetype == SCALE:
