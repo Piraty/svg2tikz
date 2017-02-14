@@ -3,3 +3,5 @@
 docs/_build/
 *.egg-info/
 tests/tmp/
+build/
+dist/
