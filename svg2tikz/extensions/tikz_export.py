@@ -1129,6 +1129,11 @@ class TikZPathExporter(inkex.Effect):
         if self.options.ignore_text:
             return None, []
         raw_textstr = self.get_text(node).strip()
+
+        # Ignore empty text fields
+        if raw_textstr == "":
+            return None, []
+
         if self.options.texmode == 'raw':
             textstr = raw_textstr
         elif self.options.texmode == 'math':
